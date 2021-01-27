@@ -1,10 +1,14 @@
 use crate::errors::GenericError;
+use data_encoding::BASE64;
+use minifier::{css, js};
 use regex::{Captures, Regex};
+use ring::digest;
 
 #[derive(Clone)]
 pub struct Template {
-    pub text: String,
+    text: String,
     regex: Regex,
+    pub unsafe_inline: bool,
 }
 
 impl Template {
@@ -12,23 +16,30 @@ impl Template {
         text: T,
         css: Option<Vec<String>>,
         js: Option<Vec<String>>,
-    ) -> Result<Self, GenericError> {
+    ) -> Result<(Self, Vec<String>, Vec<String>), GenericError> {
         let css = match css {
-            Some(c) => Template::create_tags(c, "style"),
+            Some(c) => Template::create_tags(c, Tag::Style)?,
             None => String::new(),
         };
         let js = match js {
-            Some(j) => Template::create_tags(j, "script"),
+            Some(j) => Template::create_tags(j, Tag::Script)?,
             None => String::new(),
         };
 
-        let re = Regex::new(r"\{\{ (?P<item>.*) \}\}")?;
-        let text = Template::initialize_text(&re, text.into(), css, js);
+        let unsafe_inline = js.contains('\n') || css.contains('\n');
 
-        Ok(Template {
-            text: text,
-            regex: re,
-        })
+        let re = Regex::new(r"\{\{ (?P<item>.*) \}\}")?;
+        let (text, js_hashes, css_hashes) = Template::initialize_text(&re, text.into(), css, js)?;
+
+        Ok((
+            Template {
+                text: text,
+                regex: re,
+                unsafe_inline,
+            },
+            js_hashes,
+            css_hashes,
+        ))
     }
 
     pub fn render(&self, host: String) -> String {
@@ -41,20 +52,27 @@ impl Template {
         .to_owned()
     }
 
-    fn create_tags<T: Into<String>>(list: Vec<String>, tag: T) -> String {
-        let tag = tag.into();
+    fn create_tags(list: Vec<String>, tag: Tag) -> Result<String, GenericError> {
         let mut text = String::new();
         for item in list {
-            text += &format!("<{}>", tag);
-            text += &item;
-            text += &format!("</{}>", tag);
+            text += &format!("<{}>", tag.as_str());
+            match tag {
+                Tag::Script => text += &js::minify(&item),
+                Tag::Style => text += &css::minify(&item)?,
+            }
+            text += &format!("</{}>", tag.as_str());
         }
-        text
+        Ok(text)
     }
 
-    fn initialize_text(regex: &Regex, html: String, css: String, js: String) -> String {
+    fn initialize_text(
+        regex: &Regex,
+        html: String,
+        css: String,
+        js: String,
+    ) -> Result<(String, Vec<String>, Vec<String>), GenericError> {
         // Add CSS and JS to the template text to specified locations
-        let mut new_text = (*regex.replace_all(&html, |caps: &Captures| {
+        let new_text = (*regex.replace_all(&html, |caps: &Captures| {
             match &*caps["item"].to_lowercase() {
                 "css" => String::from(&css),
                 "js" => String::from(&js),
@@ -65,13 +83,14 @@ impl Template {
 
         // Force the contents to be CRLF (it's a HTML standard thing)
         // Required so the digest is correct.
+        /*
         let mut i = 0;
         let mut previous: Option<char> = None;
         while i < new_text.len() {
-            let list: Vec<char> = new_text.chars().collect();
-            let current = list.get(i..=i);
+            let current = new_text.get(i..=i);
             if let Some(curr) = current {
-                if curr[0] == '\n' {
+                let first = curr.chars().nth(0).unwrap();
+                if first == '\n' {
                     if let Some(prev) = previous {
                         if prev != '\r' {
                             new_text.insert(i, '\r');
@@ -79,16 +98,49 @@ impl Template {
                         }
                     }
                 }
-                previous = Some(curr[0])
+                previous = Some(first)
             } else {
                 previous = None;
             }
 
             i += 1;
+        }*/
+
+        // Turns out this does not work on Linux, so as at least a temporary solution
+        // Use a minifier instead.
+
+        let js_hashes = Template::get_hashes(&new_text, Tag::Script)?;
+        let css_hashes = Template::get_hashes(&new_text, Tag::Style)?;
+
+        Ok((new_text, js_hashes, css_hashes))
+    }
+
+    fn get_hashes(text: &String, tag: Tag) -> Result<Vec<String>, GenericError> {
+        let tag = tag.as_str();
+        let mut hashes = Vec::new();
+        let regex = Regex::new(&format!(
+            r"<\s*(?i){0}\s*>(?P<content>([\s\S]*?))<\s*/\s*{0}\s*>",
+            tag
+        ))?;
+        for caps in regex.captures_iter(&text) {
+            let digest = digest::digest(&digest::SHA256, caps["content"].as_bytes());
+            let base64 = BASE64.encode(digest.as_ref());
+            hashes.push(format!("'sha256-{}'", base64));
         }
+        Ok(hashes)
+    }
+}
 
-        let js_regex = Regex::new(r"<\s*(?i)script\s*>(?P<content>.|(\r\n))*<\s*\/\s*script\s*>");
+enum Tag {
+    Script,
+    Style,
+}
 
-        new_text
+impl Tag {
+    pub fn as_str(&self) -> String {
+        match self {
+            Tag::Script => "script".to_owned(),
+            Tag::Style => "style".to_owned(),
+        }
     }
 }

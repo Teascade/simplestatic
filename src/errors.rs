@@ -6,6 +6,7 @@ pub enum GenericError {
     PathError(PathError),
     IOError(io::Error),
     RegexError(regex::Error),
+    StrError(String),
 }
 
 impl From<io::Error> for GenericError {
@@ -26,6 +27,12 @@ impl From<regex::Error> for GenericError {
     }
 }
 
+impl From<&str> for GenericError {
+    fn from(e: &str) -> GenericError {
+        GenericError::StrError(e.to_owned())
+    }
+}
+
 impl fmt::Display for GenericError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let text = match self {
@@ -34,6 +41,9 @@ impl fmt::Display for GenericError {
             }
             GenericError::IOError(e) => format!("Error: {}", e),
             GenericError::RegexError(e) => {
+                format!("Error: {}", e)
+            }
+            GenericError::StrError(e) => {
                 format!("Error: {}", e)
             }
         };

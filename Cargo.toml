@@ -9,3 +9,6 @@ tokio = { version = "1", features = ["full"] }
 warp = "0.3"
 argh = "0.1.4"
 regex = "^1.4"
+ring = "0.16.19"
+data-encoding = "2.3.1"
+minifier = "0.0.31"

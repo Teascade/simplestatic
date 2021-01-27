@@ -17,7 +17,7 @@ async fn main() {
 
     let html_path = args.clone().html.unwrap_or(PathBuf::from("index.html"));
 
-    let template = match get_files(&html_path, &args) {
+    let (template, mut js_hashes, mut css_hashes) = match get_files(&html_path, &args) {
         Ok((html, css, js)) => match Template::new(html, css, js) {
             Ok(template) => template,
             Err(e) => panic!("Error: {}", e),
@@ -25,11 +25,36 @@ async fn main() {
         Err(e) => panic!("Error: {}", e),
     };
 
+    if js_hashes.is_empty() {
+        js_hashes.push("none".to_owned());
+    }
+    if css_hashes.is_empty() {
+        css_hashes.push("none".to_owned());
+    }
+
+    let js_hashes = js_hashes.join(" ");
+    let css_hashes = css_hashes.join(" ");
+
+    let csp = if template.unsafe_inline && args.unsafe_inline {
+        format!("default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline';",)
+    } else {
+        if template.unsafe_inline {
+            eprint!("\u{001b}[3;91m");
+            eprintln!("Some new lines in script or css tags were not minified correctly. Due to Content-Security-Policy, the site may not work correctly.");
+            eprintln!("Use --unsafe-inline -flag to use 'unsafe-inline' Content-Security-Policy to ignore this error message.");
+            eprint!("\u{001b}[0m");
+        }
+        format!(
+            "default-src 'self'; script-src {}; style-src {};",
+            js_hashes, css_hashes
+        )
+    };
+
     let mut headers = HeaderMap::new();
     headers.insert("Content-Type", HeaderValue::from_static("text/html"));
     headers.insert(
         "Content-Security-Policy",
-        HeaderValue::from_static("default-src 'self'; script-src none; image-src 'https://*.example.com' 'https://foobar.com'; font-src 'jokusource' 'joku toinen source' 'etc.'"),
+        HeaderValue::from_str(&csp).unwrap(),
     );
 
     let server = warp::any()

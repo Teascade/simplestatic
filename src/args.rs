@@ -24,4 +24,7 @@ pub struct MainArgs {
         description = "path to the embedded js file, or folder containing the js files"
     )]
     pub js: Option<PathBuf>,
+
+    #[argh(switch, description = "allow unsafe_inline content-security-policy")]
+    pub unsafe_inline: bool,
 }

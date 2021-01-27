@@ -1,1 +1,0 @@
-alert("Hello! This is test javascript!")
