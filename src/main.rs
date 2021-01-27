@@ -25,8 +25,6 @@ async fn main() {
         Err(e) => panic!("Error: {}", e),
     };
 
-    //fs::write("test.html", &template.text).unwrap();
-
     let mut headers = HeaderMap::new();
     headers.insert("Content-Type", HeaderValue::from_static("text/html"));
     headers.insert(
