@@ -10,6 +10,10 @@ Content-Security-Policy so that any inline styles or scripts are included in the
 Simple Static is also capable of serving other static content, but it's purpose is strictly to serve content
 like images for the main html file.
 
+Todos:
+- Add a configuration file for anyone who does not wish to use command-line arguments
+- Add the capability of serving static content
+
 ## License
 
 Simple Static is licensed under the AGPLv3 license.
