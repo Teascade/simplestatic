@@ -11,6 +11,8 @@ mod args;
 mod errors;
 mod template;
 
+static DEFAULT_HTML: &'static str = include_str!("default.html");
+
 #[tokio::main]
 async fn main() {
     let args: MainArgs = argh::from_env();
@@ -69,14 +71,21 @@ fn get_files(
     html_path: &PathBuf,
     args: &MainArgs,
 ) -> Result<(String, Option<Vec<String>>, Option<Vec<String>>), GenericError> {
-    let metadata = fs::metadata(&html_path)?;
-    if metadata.is_dir() {
-        Err(PathError::new(
-            html_path.clone(),
-            "html path must not be a directory",
-        ))?
-    }
-    let html_file = fs::read_to_string(html_path)?;
+    if let Ok(metadata) = fs::metadata(&html_path) {
+        if metadata.is_dir() {
+            Err(PathError::new(
+                html_path.clone(),
+                "html path must not be a directory",
+            ))?
+        }
+    };
+    let html_file = match fs::read_to_string(html_path) {
+        Ok(file) => file,
+        Err(e) => {
+            println!("No html file found: {}. Using default html file.", e);
+            String::from(DEFAULT_HTML)
+        }
+    };
 
     let css_files = if let Some(css_path) = &args.css {
         Some(handle_dir_or_file(&css_path)?)
