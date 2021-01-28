@@ -35,6 +35,18 @@ The order in which these are prioritized from the first priority to last are
 An example toml configuration can be found at [`config.sample.toml`](config.sample.toml). The default config file is `config.toml` at working directory
 and `config.sample.toml` is configured to use the default configurations.
 
+## Templating
+
+Simple Static supports a small bit of templating in order to customize the webpage for each request.
+
+1. At the start of the program it looks for entries of `{{ js }}` and `{{ css }}` in the html file. This is where it embeds any external 
+javascript and css files it finds respectively.
+2. Every time when the page is rendered, a few additional templates are filled. Refer to the table below:
+
+| What            | Turns into          |
+|-----------------|---------------------|
+| `{{ Host }}`    | Host-header         |
+
 ## License
 
 Simple Static is licensed under the AGPLv3 license.

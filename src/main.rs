@@ -42,7 +42,7 @@ async fn main() {
     } else {
         if template.unsafe_inline {
             eprint!("\u{001b}[3;91m");
-            eprintln!("Some new lines in script or css tags were not minified correctly. Due to Content-Security-Policy, the site may not work correctly.");
+            eprintln!("Some newlines in script or css tags were not minified correctly. Due to Content-Security-Policy, the site may not work correctly.");
             eprintln!("Use --unsafe-inline -flag to use 'unsafe-inline' Content-Security-Policy to ignore this error message.");
             eprint!("\u{001b}[0m");
         }
