@@ -1,0 +1,6 @@
+[config]
+html-path = "index.html"
+js-path = ""
+css-path = ""
+unsafe-inline = false
+port = 3030

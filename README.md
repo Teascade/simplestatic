@@ -32,6 +32,9 @@ The order in which these are prioritized from the first priority to last are
 2. config.toml
 3. Environment Variables
 
+An example toml configuration can be found at [`config.sample.toml`](config.sample.toml). The default config file is `config.toml` at working directory
+and `config.sample.toml` is configured to use the default configurations.
+
 ## License
 
 Simple Static is licensed under the AGPLv3 license.
