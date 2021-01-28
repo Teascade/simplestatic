@@ -19,12 +19,12 @@ Todos:
 
 Configuration can be done in three different ways. 
 
-| Environment Variables  | Command-Line Arguments  | config.toml               | Description
-|------------------------|-------------------------|---------------------------|------------------------------
-| `STATIC_HTML_PATH`     | `--html`                | `html-path = "index.html"`| Path to the single html file.
-| `STATIC_JS_PATH`       | `--js`                  | `js-path = "test.js"`     | Path to the javascript file to embed, or folder containing the javascript files to embed.
-| `STATIC_CSS_PATH`      | `--css`                 | `css-path = "test.css"`   | Path to the css file to embed, or folder containing the css files to embed.
-| `STATIC_UNSAFE_INLINE` | `--unsafe-inline`       | `unsafe-inline = false`   | Allow usage of unsafe-inline CSP policy.
+| Environment Variables  | Command-Line Arguments  | config.toml     | Description
+|------------------------|-------------------------|-----------------|------------------------------
+| `STATIC_HTML_PATH`     | `--html`                | `html-path`     | Path to the single html file.
+| `STATIC_JS_PATH`       | `--js`                  | `js-path`       | Path to the javascript file to embed, or folder containing the javascript files to embed.
+| `STATIC_CSS_PATH`      | `--css`                 | `css-path`      | Path to the css file to embed, or folder containing the css files to embed.
+| `STATIC_UNSAFE_INLINE` | `--unsafe-inline`       | `unsafe-inline` | Allow usage of unsafe-inline CSP policy.
 ## License
 
 Simple Static is licensed under the AGPLv3 license.
