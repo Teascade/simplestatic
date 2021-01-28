@@ -61,7 +61,8 @@ async fn main() {
 
     let server = warp::any()
         .and(warp::header("Host"))
-        .map(move |host: String| template.render(host))
+        .and(warp::header("User-Agent"))
+        .map(move |host: String, ua: String| template.render(host, ua))
         .with(warp::reply::with::headers(headers));
 
     warp::serve(server).run(([127, 0, 0, 1], 3030)).await;

@@ -43,9 +43,10 @@ Simple Static supports a small bit of templating in order to customize the webpa
 javascript and css files it finds respectively.
 2. Every time when the page is rendered, a few additional templates are filled. Refer to the table below:
 
-| What            | Turns into          |
-|-----------------|---------------------|
-| `{{ Host }}`    | Host-header         |
+| What                  | Turns into          |
+|-----------------------|---------------------|
+| `{{ Host }}`          | Host -header        |
+| `{{ User-Agent }}`    | User-Agent -header  |
 
 ## License
 
