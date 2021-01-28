@@ -27,9 +27,9 @@ Configuration can be done in three different ways.
 | `STATIC_UNSAFE_INLINE` | `--unsafe-inline`       | `unsafe-inline` | Allow usage of unsafe-inline CSP policy.
 
 The order in which these are prioritized from the first priority to last are
-- Command-Line Arguments
-- Environment Variables
-- config.toml
+1. Command-Line Arguments
+2. config.toml
+3. Environment Variables
 
 ## License
 
