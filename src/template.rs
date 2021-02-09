@@ -56,12 +56,7 @@ impl Template {
     fn create_tags(list: Vec<String>, tag: Tag) -> Result<String, GenericError> {
         let mut text = String::new();
         for item in list {
-            text += &format!("<{}>", tag.as_str());
-            match tag {
-                Tag::Script => text += &js::minify(&item),
-                Tag::Style => text += &css::minify(&item)?,
-            }
-            text += &format!("</{}>", tag.as_str());
+            text += &format!("<{}>{}</{}>", tag.as_str(), item, tag.as_str());
         }
         Ok(text)
     }
@@ -110,19 +105,31 @@ impl Template {
         // Turns out this does not work on Linux, so as at least a temporary solution
         // Use a minifier instead.
 
+        let new_text = Template::minimize(&new_text, Tag::Script)?;
+        let new_text = Template::minimize(&new_text, Tag::Style)?;
+
         let js_hashes = Template::get_hashes(&new_text, Tag::Script)?;
         let css_hashes = Template::get_hashes(&new_text, Tag::Style)?;
 
         Ok((new_text, js_hashes, css_hashes))
     }
 
+    fn minimize(text: &String, tag: Tag) -> Result<String, GenericError> {
+        let regex = tag.as_regex()?;
+        let text = (*regex.replace_all(&text.clone(), |caps: &Captures| {
+            let content = match tag {
+                Tag::Script => js::minify(&caps["content"]),
+                Tag::Style => css::minify(&caps["content"]).unwrap_or("ERR".to_owned()),
+            };
+            return format!("<{}>{}</{}>", tag.as_str(), content, tag.as_str());
+        }))
+        .to_owned();
+        Ok(text)
+    }
+
     fn get_hashes(text: &String, tag: Tag) -> Result<Vec<String>, GenericError> {
-        let tag = tag.as_str();
         let mut hashes = Vec::new();
-        let regex = Regex::new(&format!(
-            r"<\s*(?i){0}\s*>(?P<content>([\s\S]*?))<\s*/\s*{0}\s*>",
-            tag
-        ))?;
+        let regex = tag.as_regex()?;
         for caps in regex.captures_iter(&text) {
             let digest = digest::digest(&digest::SHA256, caps["content"].as_bytes());
             let base64 = BASE64.encode(digest.as_ref());
@@ -143,5 +150,13 @@ impl Tag {
             Tag::Script => "script".to_owned(),
             Tag::Style => "style".to_owned(),
         }
+    }
+
+    pub fn as_regex(&self) -> Result<Regex, GenericError> {
+        let tag = self.as_str();
+        Ok(Regex::new(&format!(
+            r"<\s*(?i){0}\s*>(?P<content>([\s\S]*?))<\s*/\s*{0}\s*>",
+            tag
+        ))?)
     }
 }
