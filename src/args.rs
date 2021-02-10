@@ -27,4 +27,11 @@ pub struct MainArgs {
 
     #[argh(switch, description = "allow unsafe_inline content-security-policy")]
     pub unsafe_inline: bool,
+
+    #[argh(
+        option,
+        short = 'p',
+        description = "set port that will be exposed and served on. Defaults to 3333"
+    )]
+    pub port: Option<u16>,
 }

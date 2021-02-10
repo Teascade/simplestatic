@@ -1,4 +1,4 @@
-use args::MainArgs;
+use config::{Config, ConfigBuilder};
 use errors::{GenericError, PathError};
 use std::fs;
 use std::io;
@@ -8,6 +8,7 @@ use warp::http::header::{HeaderMap, HeaderValue};
 use warp::Filter;
 
 mod args;
+mod config;
 mod errors;
 mod template;
 
@@ -15,11 +16,14 @@ static DEFAULT_HTML: &'static str = include_str!("default.html");
 
 #[tokio::main]
 async fn main() {
-    let args: MainArgs = argh::from_env();
+    let config = match ConfigBuilder::default().or_from_env().or_from_cmd().build() {
+        Ok(config) => config,
+        Err(_) => panic!("Failed to build config, something is horribly wrong!"),
+    };
 
-    let html_path = args.clone().html.unwrap_or(PathBuf::from("index.html"));
+    dbg!(&config);
 
-    let (template, mut js_hashes, mut css_hashes) = match get_files(&html_path, &args) {
+    let (template, mut js_hashes, mut css_hashes) = match get_files(&config) {
         Ok((html, css, js)) => match Template::new(html, css, js) {
             Ok(template) => template,
             Err(e) => panic!("Error: {}", e),
@@ -37,7 +41,7 @@ async fn main() {
     let js_hashes = js_hashes.join(" ");
     let css_hashes = css_hashes.join(" ");
 
-    let csp = if template.unsafe_inline && args.unsafe_inline {
+    let csp = if template.unsafe_inline && config.unsafe_inline {
         format!("default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline';",)
     } else {
         if template.unsafe_inline {
@@ -65,22 +69,23 @@ async fn main() {
         .map(move |host: String, ua: String| template.render(host, ua))
         .with(warp::reply::with::headers(headers));
 
-    warp::serve(server).run(([127, 0, 0, 1], 3030)).await;
+    warp::serve(server)
+        .run(([127, 0, 0, 1], config.port.into()))
+        .await;
 }
 
 fn get_files(
-    html_path: &PathBuf,
-    args: &MainArgs,
+    config: &Config,
 ) -> Result<(String, Option<Vec<String>>, Option<Vec<String>>), GenericError> {
-    if let Ok(metadata) = fs::metadata(&html_path) {
+    if let Ok(metadata) = fs::metadata(&config.html) {
         if metadata.is_dir() {
             Err(PathError::new(
-                html_path.clone(),
+                config.html.clone(),
                 "html path must not be a directory",
             ))?
         }
     };
-    let html_file = match fs::read_to_string(html_path) {
+    let html_file = match fs::read_to_string(&config.html) {
         Ok(file) => file,
         Err(e) => {
             println!("No html file found: {}. Using default html file.", e);
@@ -88,12 +93,12 @@ fn get_files(
         }
     };
 
-    let css_files = if let Some(css_path) = &args.css {
+    let css_files = if let Some(css_path) = &config.css {
         Some(handle_dir_or_file(&css_path)?)
     } else {
         None
     };
-    let js_files = if let Some(js_path) = &args.js {
+    let js_files = if let Some(js_path) = &config.js {
         Some(handle_dir_or_file(&js_path)?)
     } else {
         None

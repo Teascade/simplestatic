@@ -12,7 +12,7 @@ like images for the main html file.
 
 Todos:
 - Add a configuration file for anyone who does not wish to use command-line arguments
-- Add environment variable reading for additional configuration possibilities.
+- (DONE) Add environment variable reading for additional configuration possibilities.
 - Add the capability of serving static content
 
 ## Configuring Simple Static
