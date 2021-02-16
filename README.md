@@ -10,11 +10,6 @@ Content-Security-Policy so that any inline styles or scripts are included in the
 Simple Static is also capable of serving other static content, but it's purpose is strictly to serve content
 like images for the main html file.
 
-Todos:
-- Add a configuration file for anyone who does not wish to use command-line arguments
-- (DONE) Add environment variable reading for additional configuration possibilities.
-- Add the capability of serving static content
-
 ## Configuring Simple Static
 
 Configuration can be done in three different ways. 
