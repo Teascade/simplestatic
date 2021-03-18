@@ -30,8 +30,29 @@ pub struct MainArgs {
 
     #[argh(
         option,
+        short = 'i',
+        description = "set host that the server is served on. defaults to 0.0.0.0"
+    )]
+    pub host: Option<String>,
+
+    #[argh(
+        option,
         short = 'p',
-        description = "set port that will be exposed and served on. Defaults to 3333"
+        description = "set port that will be exposed and served on. defaults to 3333"
     )]
     pub port: Option<u16>,
+
+    #[argh(
+        option,
+        short = 's',
+        description = "set path where to serve static content. \"static\" will serve at /static/files"
+    )]
+    pub static_path: Option<String>,
+
+    #[argh(
+        option,
+        short = 'f',
+        description = "path to the served static file, or folder containing served static files. defaults to \"static\""
+    )]
+    pub static_content: Option<PathBuf>,
 }

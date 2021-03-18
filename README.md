@@ -14,13 +14,16 @@ like images for the main html file.
 
 Configuration can be done in three different ways. 
 
-| Environment Variables  | Command-Line Arguments  | config.toml     | Description
-|------------------------|-------------------------|-----------------|------------------------------
-| `SSTATIC_HTML_PATH`    | `--html`                | `html-path`     | Path to the single html file.
-| `SSTATIC_JS_PATH`      | `--js`                  | `js-path`       | Path to the javascript file to embed, or folder containing the javascript files to embed.
-| `SSTATIC_CSS_PATH`     | `--css`                 | `css-path`      | Path to the css file to embed, or folder containing the css files to embed.
-| `SSTATIC_UNSAFE_INLINE`| `--unsafe-inline`       | `unsafe-inline` | Allow usage of unsafe-inline CSP policy.
-| `SSTATIC_PORT`         | `--port`                | `port`          | Port to bind to.
+| Environment Variables    | Command-Line Arguments  | config.toml     | Description
+|--------------------------|-------------------------|-----------------|------------------------------
+| `SSTATIC_HTML_PATH`      | `--html`                | `html-path`     | Path to the single html file.
+| `SSTATIC_JS_PATH`        | `--js`                  | `js-path`       | Path to the javascript file to embed, or folder containing the javascript files to embed.
+| `SSTATIC_CSS_PATH`       | `--css`                 | `css-path`      | Path to the css file to embed, or folder containing the css files to embed.
+| `SSTATIC_UNSAFE_INLINE`  | `--unsafe-inline`       | `unsafe-inline` | Allow usage of unsafe-inline CSP policy.
+| `SSTATIC_PORT`           | `--port`                | `port`          | Port to bind to.
+| `SSTATIC_HOST`           | `--host`                | `host`          | Host address to bind to.
+| `SSTATIC_STATIC_PATH`    | `--static-path`         | `static-path`   | Host address to bind to.
+| `SSTATIC_STATIC_CONTENT` | `--static-content`      | `static-content`| Host address to bind to.
 
 The order in which these are prioritized from the first priority to last are
 1. Command-Line Arguments
