@@ -19,16 +19,14 @@ async fn main() {
         Err(_) => panic!("Failed to build config, something is horribly wrong!"),
     };
 
-    if config.static_path.is_some() && config.static_path.clone().unwrap().contains('/') {
+    if config.static_path.clone().contains('/') {
         panic!("Unsupported feature: static_path should not contain \"/\"");
     }
 
-    let mimetypes = match Mimetypes::try_fetch(&config.mimetypes) {
+    let mimetypes = match Mimetypes::try_fetch(&config.mime_types) {
         Ok(m) => m,
         Err(_) => Mimetypes::default(),
     };
-
-    dbg!(&mimetypes);
 
     let (template, mut js_hashes, mut css_hashes) = match files::get_files(&config) {
         Ok((html, css, js)) => match Template::new(html, css, js) {
@@ -84,12 +82,12 @@ async fn main() {
         .map(move |host: String, ua: String| template.render(host, ua))
         .with(warp::reply::with::headers(headers));
 
-    if let Some(static_path) = config.static_path.clone() {
-        let content_path = config.static_content.canonicalize().unwrap();
-        let static_serve = warp::path(static_path)
+    if let Some(static_content) = config.static_content.clone() {
+        let content_path = static_content.canonicalize().unwrap();
+        let static_serve = warp::path(config.static_path)
             .and(warp::path::param::<String>())
             .and(warp::path::end())
-            .map(move |path: String| files::serve_file(&content_path, path));
+            .map(move |path: String| files::serve_file(&mimetypes, &content_path, path));
 
         warp::serve(static_serve.or(maintenance))
             .run((host, port))

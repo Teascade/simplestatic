@@ -10,7 +10,7 @@ use warp::reply::Reply;
 static DEFAULT_HTML: &'static str = include_str!("default.html");
 static DEFAULT_MIMETYPES: &'static str = include_str!("mime.types");
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Mimetypes {
     map: HashMap<String, String>,
 }
@@ -37,6 +37,10 @@ impl Mimetypes {
         }
         Ok(Mimetypes { map })
     }
+
+    fn get<T: Into<String>>(&self, key: T) -> Option<String> {
+        self.map.get(&key.into()).map(|x| x.clone())
+    }
 }
 
 impl Default for Mimetypes {
@@ -45,30 +49,22 @@ impl Default for Mimetypes {
     }
 }
 
-pub fn serve_file(content_path: &PathBuf, path: String) -> Box<dyn Reply> {
+pub fn serve_file(mime_types: &Mimetypes, content_path: &PathBuf, path: String) -> Box<dyn Reply> {
     if let Ok(metadata) = fs::metadata(content_path) {
         if metadata.is_dir() {
             let new_path = content_path.join(path);
 
-            if let Ok(metadata) = fs::metadata(new_path) {
+            if let Ok(metadata) = fs::metadata(&new_path) {
                 if metadata.is_dir() {
                     simple_404()
                 } else {
-                    Box::new(String::from("Hello!"))
+                    get_file(mime_types, &new_path)
                 }
             } else {
                 simple_404()
             }
         } else {
-            if let Ok(content) = fs::read(content_path) {
-                Box::new(warp::reply::with_header(
-                    content,
-                    "Content-Type",
-                    "text/html",
-                ))
-            } else {
-                simple_404()
-            }
+            get_file(mime_types, content_path)
         }
     } else {
         simple_404()
@@ -80,6 +76,21 @@ fn simple_404() -> Box<dyn Reply> {
         String::from("404"),
         StatusCode::NOT_FOUND,
     ))
+}
+
+fn get_file(mime_types: &Mimetypes, path: &PathBuf) -> Box<dyn Reply> {
+    if let Ok(content) = fs::read(path) {
+        let mime = path
+            .extension()
+            .map(|x| x.to_str())
+            .flatten()
+            .map(move |x| mime_types.get(x))
+            .flatten()
+            .unwrap_or(String::from("text/plain"));
+        Box::new(warp::reply::with_header(content, "Content-Type", mime))
+    } else {
+        simple_404()
+    }
 }
 
 pub fn get_files(

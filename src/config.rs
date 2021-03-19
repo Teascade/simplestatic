@@ -10,8 +10,8 @@ pub struct Config {
     pub unsafe_inline: bool,
     pub host: String,
     pub port: u16,
-    pub static_path: Option<String>,
-    pub static_content: PathBuf,
+    pub static_path: String,
+    pub static_content: Option<PathBuf>,
     pub mime_types: PathBuf,
 }
 
@@ -44,8 +44,8 @@ impl ConfigBuilder {
                 unsafe_inline: self.unsafe_inline.unwrap(),
                 host: self.host.clone().unwrap(),
                 port: self.port.unwrap(),
-                static_path: self.static_path.clone(),
-                static_content: self.static_content.clone().unwrap(),
+                static_path: self.static_path.clone().unwrap(),
+                static_content: self.static_content.clone(),
                 mime_types: self.mime_types.clone().unwrap(),
             })
         }
@@ -106,8 +106,8 @@ impl Default for ConfigBuilder {
             unsafe_inline: Some(false),
             host: Some(String::from("0.0.0.0")),
             port: Some(3333),
-            static_path: None,
-            static_content: Some(PathBuf::from("static")),
+            static_path: Some(String::from("static")),
+            static_content: None,
             mime_types: Some(PathBuf::from("/etc/mime.types")),
         }
     }

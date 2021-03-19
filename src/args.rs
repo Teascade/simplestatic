@@ -45,14 +45,14 @@ pub struct MainArgs {
     #[argh(
         option,
         short = 's',
-        description = "set path where to serve static content. \"static\" will serve at /static/files"
+        description = "set path where to serve static content. defaults to \"static\""
     )]
     pub static_path: Option<String>,
 
     #[argh(
         option,
         short = 'f',
-        description = "path to the served static file, or folder containing served static files. defaults to \"static\""
+        description = "path to the served static file, or folder containing served static files."
     )]
     pub static_content: Option<PathBuf>,
 
