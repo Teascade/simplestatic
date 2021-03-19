@@ -1,7 +1,6 @@
 use config::ConfigBuilder;
 use files::Mimetypes;
 use std::net::IpAddr;
-use std::path::PathBuf;
 use template::Template;
 use warp::http::header::{HeaderMap, HeaderValue};
 use warp::Filter;
@@ -37,10 +36,10 @@ async fn main() {
     };
 
     if js_hashes.is_empty() {
-        js_hashes.push("none".to_owned());
+        js_hashes.push("'none'".to_owned());
     }
     if css_hashes.is_empty() {
-        css_hashes.push("none".to_owned());
+        css_hashes.push("'none'".to_owned());
     }
 
     let js_hashes = js_hashes.join(" ");
@@ -80,6 +79,7 @@ async fn main() {
         .and(warp::header("Host"))
         .and(warp::header("User-Agent"))
         .map(move |host: String, ua: String| template.render(host, ua))
+        .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::SERVICE_UNAVAILABLE))
         .with(warp::reply::with::headers(headers));
 
     if let Some(static_content) = config.static_content.clone() {
