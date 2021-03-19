@@ -1,5 +1,7 @@
 use config::ConfigBuilder;
+use files::Mimetypes;
 use std::net::IpAddr;
+use std::path::PathBuf;
 use template::Template;
 use warp::http::header::{HeaderMap, HeaderValue};
 use warp::Filter;
@@ -21,7 +23,12 @@ async fn main() {
         panic!("Unsupported feature: static_path should not contain \"/\"");
     }
 
-    dbg!(&config);
+    let mimetypes = match Mimetypes::try_fetch(&config.mimetypes) {
+        Ok(m) => m,
+        Err(_) => Mimetypes::default(),
+    };
+
+    dbg!(&mimetypes);
 
     let (template, mut js_hashes, mut css_hashes) = match files::get_files(&config) {
         Ok((html, css, js)) => match Template::new(html, css, js) {
@@ -78,10 +85,11 @@ async fn main() {
         .with(warp::reply::with::headers(headers));
 
     if let Some(static_path) = config.static_path.clone() {
+        let content_path = config.static_content.canonicalize().unwrap();
         let static_serve = warp::path(static_path)
             .and(warp::path::param::<String>())
             .and(warp::path::end())
-            .map(move |path: String| files::serve_file(&config.static_content, path));
+            .map(move |path: String| files::serve_file(&content_path, path));
 
         warp::serve(static_serve.or(maintenance))
             .run((host, port))

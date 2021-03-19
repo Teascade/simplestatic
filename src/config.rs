@@ -12,6 +12,7 @@ pub struct Config {
     pub port: u16,
     pub static_path: Option<String>,
     pub static_content: PathBuf,
+    pub mime_types: PathBuf,
 }
 
 pub struct ConfigBuilder {
@@ -23,6 +24,7 @@ pub struct ConfigBuilder {
     port: Option<u16>,
     static_path: Option<String>,
     static_content: Option<PathBuf>,
+    mime_types: Option<PathBuf>,
 }
 
 impl ConfigBuilder {
@@ -44,6 +46,7 @@ impl ConfigBuilder {
                 port: self.port.unwrap(),
                 static_path: self.static_path.clone(),
                 static_content: self.static_content.clone().unwrap(),
+                mime_types: self.mime_types.clone().unwrap(),
             })
         }
     }
@@ -59,6 +62,7 @@ impl ConfigBuilder {
             port: args.port,
             static_path: args.static_path,
             static_content: args.static_content,
+            mime_types: args.mime_types,
         })
     }
 
@@ -74,6 +78,7 @@ impl ConfigBuilder {
                 .map(|x| x.parse::<u16>().unwrap_or(3333)),
             static_path: env::var("SSTATIC_STATIC_PATH").ok().map(String::from),
             static_content: env::var("SSTATIC_STATIC_CONTENT").ok().map(PathBuf::from),
+            mime_types: env::var("SSTATIC_MIME_TYPES").ok().map(PathBuf::from),
         })
     }
 
@@ -87,6 +92,7 @@ impl ConfigBuilder {
             port: other.port.or(self.port),
             static_path: other.static_path.or(self.static_path.clone()),
             static_content: other.static_content.or(self.static_content.clone()),
+            mime_types: other.mime_types.or(self.mime_types.clone()),
         }
     }
 }
@@ -102,6 +108,7 @@ impl Default for ConfigBuilder {
             port: Some(3333),
             static_path: None,
             static_content: Some(PathBuf::from("static")),
+            mime_types: Some(PathBuf::from("/etc/mime.types")),
         }
     }
 }

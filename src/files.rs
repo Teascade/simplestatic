@@ -1,13 +1,85 @@
 use crate::config::Config;
 use crate::errors::{GenericError, PathError};
+use std::collections::HashMap;
 use std::fs;
 use std::io;
 use std::path::PathBuf;
+use warp::http::StatusCode;
+use warp::reply::Reply;
 
 static DEFAULT_HTML: &'static str = include_str!("default.html");
+static DEFAULT_MIMETYPES: &'static str = include_str!("mime.types");
 
-pub fn serve_file(content_path: &PathBuf, path: String) -> String {
-    String::from("Hello!")
+#[derive(Debug)]
+pub struct Mimetypes {
+    map: HashMap<String, String>,
+}
+
+impl Mimetypes {
+    pub fn try_fetch(path: &PathBuf) -> Result<Mimetypes, GenericError> {
+        let content = fs::read_to_string(path)?;
+        Mimetypes::parse(content)
+    }
+
+    fn parse(content: String) -> Result<Mimetypes, GenericError> {
+        let mut map = HashMap::new();
+        let rows = content.lines();
+        for row in rows {
+            let row = row.trim();
+            if row.starts_with('#') {
+                continue;
+            }
+            let mut parts = row.split_whitespace();
+            let mimetype = parts.next();
+            while let Some(ext) = parts.next() {
+                map.insert(ext.to_owned(), mimetype.unwrap().to_owned());
+            }
+        }
+        Ok(Mimetypes { map })
+    }
+}
+
+impl Default for Mimetypes {
+    fn default() -> Self {
+        Mimetypes::parse(DEFAULT_MIMETYPES.into()).unwrap()
+    }
+}
+
+pub fn serve_file(content_path: &PathBuf, path: String) -> Box<dyn Reply> {
+    if let Ok(metadata) = fs::metadata(content_path) {
+        if metadata.is_dir() {
+            let new_path = content_path.join(path);
+
+            if let Ok(metadata) = fs::metadata(new_path) {
+                if metadata.is_dir() {
+                    simple_404()
+                } else {
+                    Box::new(String::from("Hello!"))
+                }
+            } else {
+                simple_404()
+            }
+        } else {
+            if let Ok(content) = fs::read(content_path) {
+                Box::new(warp::reply::with_header(
+                    content,
+                    "Content-Type",
+                    "text/html",
+                ))
+            } else {
+                simple_404()
+            }
+        }
+    } else {
+        simple_404()
+    }
+}
+
+fn simple_404() -> Box<dyn Reply> {
+    Box::new(warp::reply::with_status(
+        String::from("404"),
+        StatusCode::NOT_FOUND,
+    ))
 }
 
 pub fn get_files(

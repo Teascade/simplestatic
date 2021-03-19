@@ -55,4 +55,11 @@ pub struct MainArgs {
         description = "path to the served static file, or folder containing served static files. defaults to \"static\""
     )]
     pub static_content: Option<PathBuf>,
+
+    #[argh(
+        option,
+        short = 'm',
+        description = "path to mimetypes. defaults to /etc/mime.types, uses default mimetypes on error."
+    )]
+    pub mime_types: Option<PathBuf>,
 }

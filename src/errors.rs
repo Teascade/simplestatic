@@ -2,6 +2,7 @@ use std::fmt;
 use std::io;
 use std::path::PathBuf;
 
+#[derive(Debug)]
 pub enum GenericError {
     PathError(PathError),
     IOError(io::Error),
@@ -51,6 +52,7 @@ impl fmt::Display for GenericError {
     }
 }
 
+#[derive(Debug)]
 pub struct PathError {
     pub path: PathBuf,
     pub text: String,

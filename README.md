@@ -22,8 +22,9 @@ Configuration can be done in three different ways.
 | `SSTATIC_UNSAFE_INLINE`  | `--unsafe-inline`       | `unsafe-inline` | Allow usage of unsafe-inline CSP policy.
 | `SSTATIC_PORT`           | `--port`                | `port`          | Port to bind to.
 | `SSTATIC_HOST`           | `--host`                | `host`          | Host address to bind to.
-| `SSTATIC_STATIC_PATH`    | `--static-path`         | `static-path`   | Host address to bind to.
-| `SSTATIC_STATIC_CONTENT` | `--static-content`      | `static-content`| Host address to bind to.
+| `SSTATIC_STATIC_PATH`    | `--static-path`         | `static-path`   | Path that will serve the static content
+| `SSTATIC_STATIC_CONTENT` | `--static-content`      | `static-content`| Path of the content that will be served
+| `SSTATIC_MIME_TYPES`     | `--mime-types`          | `mime-types`    | Path to file containing mime types.
 
 The order in which these are prioritized from the first priority to last are
 1. Command-Line Arguments
