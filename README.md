@@ -65,4 +65,4 @@ javascript and css files it finds respectively.
 
 ## License
 
-Simple Static is licensed under the AGPLv3 license.
+Simple Static is licensed under the [AGPLv3](./LICENSE) license.

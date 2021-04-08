@@ -1,8 +1,15 @@
 [package]
 name = "simplestatic"
-version = "0.1.0"
-authors = ["Trans ry"]
+description = "lightweight and minimalistic single-page webserver"
+version = "1.0.0"
+authors = ["Trans ry <support@transry.fi>", "Teascade <teascade@gmail.com>"]
 edition = "2018"
+repository = "https://github.com/Transyhdistys/simplestatic"
+license = "AGPL-3.0"
+license-file = "LICENSE"
+readme = "README.md"
+keywords = ["template", "web", "http", "server", "html"]
+categories = ["web-programming::http-server"]
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
