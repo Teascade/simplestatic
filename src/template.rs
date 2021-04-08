@@ -43,14 +43,9 @@ impl Template {
     }
 
     pub fn render(&self, host: String, ua: String) -> String {
-        (*self.regex.replace_all(&self.text, |caps: &Captures| {
-            match &*caps["item"].to_lowercase() {
-                "host" => String::from(&host),
-                "user-agent" => String::from(&ua),
-                _ => String::new(),
-            }
-        }))
-        .to_owned()
+        self.text
+            .replace("{{ host }}", &host)
+            .replace("{{ user-agent }}", &ua)
     }
 
     fn create_tags(list: Vec<String>, tag: Tag) -> Result<String, GenericError> {
