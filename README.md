@@ -16,15 +16,16 @@ Configuration can be done in three different ways.
 
 | Environment Variables    | Command-Line Arguments  | config.toml     | Description
 |--------------------------|-------------------------|-----------------|------------------------------
-| `SSTATIC_HTML_PATH`      | `--html`                | `html-path`     | Path to the single html file.
-| `SSTATIC_JS_PATH`        | `--js`                  | `js-path`       | Path to the javascript file to embed, or folder containing the javascript files to embed.
-| `SSTATIC_CSS_PATH`       | `--css`                 | `css-path`      | Path to the css file to embed, or folder containing the css files to embed.
-| `SSTATIC_UNSAFE_INLINE`  | `--unsafe-inline`       | `unsafe-inline` | Allow usage of unsafe-inline CSP policy.
+| `SSTATIC_HTML_PATH`      | `--html`                | `html`          | Path to the single html file.
+| `SSTATIC_JS_PATH`        | `--js`                  | `js`            | Path to the javascript file to embed, or folder containing the javascript files to embed.
+| `SSTATIC_CSS_PATH`       | `--css`                 | `css`           | Path to the css file to embed, or folder containing the css files to embed.
+| `SSTATIC_UNSAFE_INLINE`  | `--unsafe-inline`       | `unsafe_inline` | Allow usage of unsafe-inline CSP policy.
 | `SSTATIC_PORT`           | `--port`                | `port`          | Port to bind to.
 | `SSTATIC_HOST`           | `--host`                | `host`          | Host address to bind to.
-| `SSTATIC_STATIC_PATH`    | `--static-path`         | `static-path`   | Path that will serve the static content
-| `SSTATIC_STATIC_CONTENT` | `--static-content`      | `static-content`| Path of the content that will be served
-| `SSTATIC_MIME_TYPES`     | `--mime-types`          | `mime-types`    | Path to file containing mime types.
+| `SSTATIC_STATIC_PATH`    | `--static-path`         | `static_path`   | Path that will serve the static content
+| `SSTATIC_STATIC_CONTENT` | `--static-content`      | `static_content`| Path of the content that will be served
+| `SSTATIC_MIME_TYPES`     | `--mime-types`          | `mime_types`    | Path to file containing mime types.
+| `SSTATIC_CONFIG_PATH`    | `--config-path`         | No option       | Path to an optional config.toml file.
 
 The order in which these are prioritized from the first priority to last are
 1. Command-Line Arguments

@@ -1,6 +1,9 @@
+use args::MainArgs;
 use config::ConfigBuilder;
 use files::Mimetypes;
+use std::env;
 use std::net::IpAddr;
+use std::path::PathBuf;
 use template::Template;
 use warp::http::header::{HeaderMap, HeaderValue};
 use warp::Filter;
@@ -13,9 +16,19 @@ mod template;
 
 #[tokio::main]
 async fn main() {
-    let config = match ConfigBuilder::default().or_from_env().or_from_cmd().build() {
-        Ok(config) => config,
-        Err(_) => panic!("Failed to build config, something is horribly wrong!"),
+    let args: MainArgs = argh::from_env();
+    let env_path = env::var("SSTATIC_CONFIG_PATH").ok().map(PathBuf::from);
+    let config_path = args.config_path.clone().or(env_path);
+
+    let config = match ConfigBuilder::default()
+        .or_from_env()
+        .or_from_file(config_path)
+    {
+        Ok(config) => match config.or_from_cmd(args).build() {
+            Ok(config) => config,
+            Err(_) => panic!("Failed to build config, something is horribly wrong!"),
+        },
+        Err(e) => panic!(e),
     };
 
     if config.static_path.clone().contains('/') {

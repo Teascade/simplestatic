@@ -62,4 +62,11 @@ pub struct MainArgs {
         description = "path to mimetypes. defaults to /etc/mime.types, uses default mimetypes on error."
     )]
     pub mime_types: Option<PathBuf>,
+
+    #[argh(
+        option,
+        short = 'o',
+        description = "path a config.toml file containing configurations."
+    )]
+    pub config_path: Option<PathBuf>,
 }

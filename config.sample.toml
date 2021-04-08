@@ -1,10 +1,9 @@
-[config]
-html-path = "index.html"
-# js-path = ""
-# css-path = ""
-# unsafe-inline = false
+html = "index.html"
+# js = ""
+# css = ""
+# unsafe_inline = false
 port = 3333
 host = "0.0.0.0"
 static-path = "static"
-# static-content = ""
+# static_content = ""
 mime-types = "/etc/mime.types"

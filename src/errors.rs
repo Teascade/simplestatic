@@ -7,6 +7,7 @@ pub enum GenericError {
     PathError(PathError),
     IOError(io::Error),
     RegexError(regex::Error),
+    TOMLError(toml::de::Error),
     StrError(String),
 }
 
@@ -28,6 +29,12 @@ impl From<regex::Error> for GenericError {
     }
 }
 
+impl From<toml::de::Error> for GenericError {
+    fn from(e: toml::de::Error) -> GenericError {
+        GenericError::TOMLError(e)
+    }
+}
+
 impl From<&str> for GenericError {
     fn from(e: &str) -> GenericError {
         GenericError::StrError(e.to_owned())
@@ -46,6 +53,9 @@ impl fmt::Display for GenericError {
             }
             GenericError::StrError(e) => {
                 format!("Error: {}", e)
+            }
+            GenericError::TOMLError(e) => {
+                format!("Error parsing toml: {}", e)
             }
         };
         write!(f, "{}", text)

@@ -1,6 +1,10 @@
 use crate::args::MainArgs;
+use crate::errors::GenericError;
 use std::env;
+use std::fs;
 use std::path::PathBuf;
+
+use serde_derive::Deserialize;
 
 #[derive(Debug, Clone)]
 pub struct Config {
@@ -15,6 +19,7 @@ pub struct Config {
     pub mime_types: PathBuf,
 }
 
+#[derive(Debug, Clone, Deserialize)]
 pub struct ConfigBuilder {
     html: Option<PathBuf>,
     css: Option<PathBuf>,
@@ -33,7 +38,7 @@ impl ConfigBuilder {
             || self.unsafe_inline.is_none()
             || self.host.is_none()
             || self.port.is_none()
-            || self.static_content.is_none()
+            || self.static_path.is_none()
         {
             Err(())
         } else {
@@ -51,8 +56,7 @@ impl ConfigBuilder {
         }
     }
 
-    pub fn or_from_cmd(&self) -> ConfigBuilder {
-        let args: MainArgs = argh::from_env();
+    pub fn or_from_cmd(self, args: MainArgs) -> ConfigBuilder {
         self.or_rather(ConfigBuilder {
             html: args.html,
             css: args.css,
@@ -66,7 +70,7 @@ impl ConfigBuilder {
         })
     }
 
-    pub fn or_from_env(&self) -> ConfigBuilder {
+    pub fn or_from_env(self) -> ConfigBuilder {
         self.or_rather(ConfigBuilder {
             html: env::var("SSTATIC_HTML_PATH").ok().map(PathBuf::from),
             css: env::var("SSTATIC_JS_PATH").ok().map(PathBuf::from),
@@ -80,6 +84,16 @@ impl ConfigBuilder {
             static_content: env::var("SSTATIC_STATIC_CONTENT").ok().map(PathBuf::from),
             mime_types: env::var("SSTATIC_MIME_TYPES").ok().map(PathBuf::from),
         })
+    }
+
+    pub fn or_from_file(self, path: Option<PathBuf>) -> Result<ConfigBuilder, GenericError> {
+        if let Some(path) = path {
+            let otus = self.or_rather(toml::from_str(&fs::read_to_string(path)?)?);
+            dbg!(&otus);
+            Ok(otus)
+        } else {
+            Ok(self)
+        }
     }
 
     pub fn or_rather(&self, other: ConfigBuilder) -> ConfigBuilder {
