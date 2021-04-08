@@ -10,6 +10,21 @@ Content-Security-Policy so that any inline styles or scripts are included in the
 Simple Static is also capable of serving other static content, but it's purpose is strictly to serve content
 like images for the main html file.
 
+# Deployment
+
+To be added soon, Dockerfile awaits
+
+# Performance
+
+On my personal computer when testing with [wrk](https://github.com/wg/wrk),
+Simple Static is able to serve about 150,000 requests per second, which should be plenty for anything.
+
+100 MB of RAM is probably plenty for all kinds of maintenance websites (unless
+if you're using big javascript libraries, in which case you may need more).
+
+As for CPU I can't quite tell. A toaster should be able to run this, but with
+enough traffic it will probably eat all of the CPU you give it.
+
 ## Configuring Simple Static
 
 Configuration can be done in three different ways. 
