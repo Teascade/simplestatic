@@ -45,8 +45,8 @@ async fn main() {
     let js_hashes = js_hashes.join(" ");
     let css_hashes = css_hashes.join(" ");
 
-    let csp = if template.unsafe_inline && config.unsafe_inline {
-        format!("default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline';",)
+    let csp = if config.unsafe_inline {
+        format!("default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline';")
     } else {
         if template.unsafe_inline {
             eprint!("\u{001b}[3;91m");
