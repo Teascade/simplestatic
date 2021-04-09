@@ -21,16 +21,15 @@ And then just run `simplestatic`. Use `--help` for help.
 ## Docker
 
 Simplestatic can be pulled from
-`docker.pkg.github.com/transyhdistys/simplestatic/simplestatic:1.0.0` and
-possibly in the future from `ghcr.io/transyhdistys/simplestatic:1.0.0`
+`ghcr.io/transyhdistys/simplestatic:latest`
 
 So running it can be simple as
-`docker run -dp 3333:3333 docker.pkg.github.com/transyhdistys/simplestatic/simplestatic:1.0.0`
+`docker run -dp 3333:3333 ghcr.io/transyhdistys/simplestatic:latest`
 
 Or for docker-compose
 ```yaml
 simplestatic:
-    image: docker.pkg.github.com/transyhdistys/simplestatic/simplestatic:1.0.0
+    image: ghcr.io/transyhdistys/simplestatic:latest
     environment:
       - SSTATIC_PORT: 3333 # See configuring for more
     ports:
