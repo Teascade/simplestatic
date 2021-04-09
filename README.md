@@ -12,7 +12,34 @@ like images for the main html file.
 
 # Deployment
 
-To be added soon, Dockerfile awaits
+## Install from cargo 
+
+Run `cargo install simplestatic`
+
+And then just run `simplestatic`. Use `--help` for help.
+
+## Docker
+
+Simplestatic can be pulled from
+`docker.pkg.github.com/transyhdistys/simplestatic/simplestatic:1.0.0` and
+possibly in the future from `ghcr.io/transyhdistys/simplestatic:1.0.0`
+
+So running it can be simple as
+`docker run -dp 3333:3333 docker.pkg.github.com/transyhdistys/simplestatic/simplestatic:1.0.0`
+
+Or for docker-compose
+```yaml
+simplestatic:
+    image: docker.pkg.github.com/transyhdistys/simplestatic/simplestatic:1.0.0
+    environment:
+      - SSTATIC_PORT: 3333 # See configuring for more
+    ports:
+      - 3333:3333
+```
+
+## Build manually
+
+Simply install Rust and run `cargo run`. It should not have other dependencies, and at least Rust 1.48 is new enough.
 
 # Performance
 
